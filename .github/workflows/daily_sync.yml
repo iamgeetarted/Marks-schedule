@@ -1,0 +1,35 @@
+name: Update My Schedule Website
+
+on:
+  schedule:
+    # This runs at 9:00 AM UTC (about 4:00 AM EST) every day
+    - cron: '0 9 * * *'
+  workflow_dispatch: # This allows you to run it manually anytime
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install Dependencies
+        run: |
+          pip install playwright
+          playwright install chromium
+
+      - name: Run Scraper
+        run: python update_schedule.py
+
+      - name: Commit and Push changes
+        run: |
+          git config --global user.name "Schedule Bot"
+          git config --global user.email "bot@github.com"
+          git add index.html
+          git commit -m "Automated schedule update" || exit 0
+          git push
